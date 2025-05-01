@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 
-from app.routers import hello
+from app.routers import hello, post_random_flow
 
-app = FastAPI()
+app = FastAPI(debug=True)
 
+app.include_router(post_random_flow.router, prefix="/flow", tags=["flow"])
 app.include_router(hello.router, prefix="/api")
 
 
