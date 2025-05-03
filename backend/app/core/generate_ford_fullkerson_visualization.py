@@ -1,10 +1,10 @@
 from app.models.graph import Graph, Edge
 from app.models.visualization import Action, Visualization
-
-max_capacity = 1e5
+from typing import List
+max_capacity = 100
 
 way = []
-def Dfs(edges, is_visited, n, v, f):
+def Dfs(edges : List[List[Edge]], is_visited : List[int], n : int, v : int, f : int) -> int:
     is_visited[v] = True
     if v == n - 1:
         return f
@@ -29,12 +29,12 @@ def Dfs(edges, is_visited, n, v, f):
             way.pop()
     return 0
 
-def FordFullkerson(n, edges):
+def FordFullkerson(n : int, edges : List[List[Edge]]) -> Visualization:
     is_visited = [False for _ in range(n)]
     visualization = []
     res = 0
+    global way
     while (True):
-        global way
         way.clear()
         for i in range(n):
             is_visited[i] = False
@@ -44,8 +44,8 @@ def FordFullkerson(n, edges):
         res += flow
         visualization.append(Action(way=list(way), flow=flow))
 
-def generate_visualization(graph : Graph):
-    edges = [[] for i in range(graph.n)]
+def generate_visualization(graph : Graph) -> Visualization:
+    edges = [[] for _ in range(graph.n)]
     for edge in graph.edges:
         edges[edge.from_].append(edge)
         edges[edge.to].append(edge)
