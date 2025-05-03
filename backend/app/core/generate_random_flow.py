@@ -37,6 +37,7 @@ def add_edge(u : int, v : int, edges : List[Edge]) -> None:
         from_=u,
         to=v,
         capacity=random.randint(min_cap, max_cap),
+        flow=0,
         color=(r, g, b),
     )
     edges.append(edge)

@@ -5,6 +5,7 @@ class Edge(BaseModel):
     from_: int
     to: int
     capacity: int
+    flow : int
     color: Tuple[int, int, int]
 
 class Graph(BaseModel):
