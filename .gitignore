@@ -8,3 +8,6 @@ __pycache__/
 Thumbs.db
 Desktop.ini
 .ruff_cache
+.coverage
+htmlcov
+.pytest_cache
