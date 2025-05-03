@@ -1,0 +1,50 @@
+name: Check pull request
+
+on:
+  pull_request:
+
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+      - name: "Dependency Review"
+        uses: actions/dependency-review-action@v4
+  lint:
+    name: Lint
+    needs: [setup]
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+      - name: "Python Setup"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: "Install dependencies"
+        run: pip install -r requirements.txt
+      - name: "Lint"
+        run: bash scripts/lint.sh
+  testing:
+    name: Testing
+    needs: [lint]
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+      - name: "Python Setup"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: "Install dependencies"
+        run: pip install -r requirements.txt
+      - name: "Lint"
+        run: bash scripts/test.sh
+      - name: "Store coverage files"
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: htmlcov
+          include-hidden-files: true
