@@ -1,7 +1,10 @@
-from pydantic import BaseModel, Field
-from typing import List, Tuple
+from pydantic import BaseModel
+
 from app.models.graph import Graph
 
+
 class Picture(BaseModel):
+    """Picture class."""
+
     graph: Graph
-    coordinates: List[Tuple[float, float]]
+    coordinates: list[tuple[float, float]]
