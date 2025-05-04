@@ -1,18 +1,17 @@
+from typing import List, Tuple
+
 from pydantic import BaseModel
 
 
 class Edge(BaseModel):
-    """Edge class."""
-
     from_: int
     to: int
     capacity: int
-    color: tuple[int, int, int]
+    flow: int
+    color: Tuple[int, int, int]
 
 
 class Graph(BaseModel):
-    """Graph class."""
-
     n: int
     m: int
-    edges: list[Edge]
+    edges: List[Edge]
