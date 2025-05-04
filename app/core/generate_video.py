@@ -11,7 +11,8 @@ from app.config import settings
 from app.utils.clear_dir import clear_dir
 
 
-def generate_video_file():
+def generate_video_file() -> FileResponse:
+    """Generate video file."""
     filepath = Path(__file__)
     root_dir = Path(Path(filepath.parent / "../..").resolve())
 
@@ -49,7 +50,8 @@ def generate_video_file():
     )
 
 
-def generate_video_link():
+def generate_video_link() -> dict:
+    """Upload video to cloud storage and return link."""
     video = generate_video_file()
     cloudinary.config(
         cloud_name=settings.CLOUDINARY_CLOUD_NAME,
@@ -61,7 +63,8 @@ def generate_video_link():
         res = cloudinary.uploader.upload_large(
             video.path,
             resource_type="video",
-            public_id=f"FlowVisualization/{Path(video.filename).stem}",
+            public_id=f"FlowVisualization/ \
+            {Path(video.filename if video.filename is not None else '').stem}",
         )
     except Exception as e:  # noqa: BLE001
         raise HTTPException(
