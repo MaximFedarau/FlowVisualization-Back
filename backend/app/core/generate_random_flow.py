@@ -1,46 +1,62 @@
-import random
 import math
+import random
 
-from app.models.graph import Edge
-from app.models.graph import Graph
+from app.constants.flow_constants import max_capacity, min_capacity
+from app.models.graph import Edge, Graph
 from app.models.picture import Picture
-from typing import List, Tuple
 
-def filter_loops(edges : List[Edge]) -> List[Edge]:
+
+def filter_loops(edges: list[Edge]) -> list[Edge]:
     clear_edges = []
     for edge in edges:
-        if (edge.to != edge.from_):
+        if edge.to != edge.from_:
             clear_edges.append(edge)
     return clear_edges
 
-def filter_multiple_edges(edges: List[Edge]) -> List[Edge]:
+
+def filter_multiple_edges(edges: list[Edge]) -> list[Edge]:
     used = set()
     clear_edges = []
     for edge in edges:
-        if ((edge.from_, edge.to) not in used):
+        if (edge.from_, edge.to) not in used:
             used.add((edge.from_, edge.to))
             clear_edges.append(edge)
     return clear_edges
 
-def get_point_on_circle(centre_x : float, centre_y : float, radius : float, angle : float) -> Tuple[float, float]:
+
+def filter_reversed_edges(edges: list[Edge]) -> list[Edge]:
+    used = set()
+    clear_edges = []
+    for edge in edges:
+        if ((edge.from_, edge.to) not in used) and (edge.from_, edge.to):
+            used.add((edge.from_, edge.to))
+            clear_edges.append(edge)
+    return clear_edges
+
+
+def get_point_on_circle(
+    centre_x: float, centre_y: float, radius: float, angle: float
+) -> tuple[float, float]:
     x = centre_x + radius * math.cos(angle)
     y = centre_y + radius * math.sin(angle)
     return (x, y)
 
-def add_edge(u : int, v : int, edges : List[Edge]) -> None:
-    min_cap = 1
-    max_cap = 100
+
+def add_edge(u: int, v: int, edges: list[Edge]) -> None:
     r = random.randint(0, 255)
     g = random.randint(0, 255)
     b = random.randint(0, 255)
     edge = Edge(
         from_=u,
         to=v,
-        capacity=random.randint(min_cap, max_cap),
+        capacity=random.randint(min_capacity, max_capacity),
+        flow=0,
         color=(r, g, b),
     )
     edges.append(edge)
-def generate_random_flow(n : int, m : int) -> Picture:
+
+
+def generate_random_flow(n: int, m: int) -> Picture:
     print("DEBUG: generate_random_flow called with n =", n, "m =", m)
     edges = []
     coordinates = []

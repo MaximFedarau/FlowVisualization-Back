@@ -1,12 +1,9 @@
 from app.models.graph import Graph, Edge
 from app.models.visualization import Action, Visualization
-from typing import List
 from collections import deque
+from app.constants.flow_constants import max_capacity
 
-max_capacity = 100
-way = []
-
-def FindWay(n, is_visited, edges, parents):
+def FindWay(n : int, is_visited : list[bool], edges : list[list[Edge]], parents : list[tuple[Edge, bool]]) -> bool:
     queue = deque()
     queue.append(0)
     while (queue):
@@ -23,29 +20,29 @@ def FindWay(n, is_visited, edges, parents):
                 queue.append(e.from_)
     return is_visited[n - 1]
 
-def PushWay(v, f, parents):
+def PushWay(v : int, f : int, parents : list[tuple[Edge]], way) -> int:
   if (v == 0):
     return f
   e, b = parents[v]
   if (b):
-      d = PushWay(e.from_, min(e.capacity - e.flow, f), parents)
+      d = PushWay(e.from_, min(e.capacity - e.flow, f), parents, way)
       way.append(e)
       e.flow += d
       return d
-  d = PushWay(e.to, min(e.flow, f), parents)
+  d = PushWay(e.to, min(e.flow, f), parents, way)
   way.append(e)
   e.flow -= d
   return d
 
-def EdmondsKarp(n, edges):
+def EdmondsKarp(n : int, edges : list[list[Edge]]) -> Visualization:
     is_visited = [False for _ in range(n)]
     parents = [None for _ in range(n)]
     visualization = []
+    way = []
     res = 0
-    global way
     while(FindWay(n, is_visited, edges, parents)):
         way.clear()
-        flow = PushWay(n - 1, max_capacity, parents)
+        flow = PushWay(n - 1, max_capacity, parents, way)
         res += flow
         visualization.append(Action(way=list(way), flow=flow))
         for i in range(n):
