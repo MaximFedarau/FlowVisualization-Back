@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import FileResponse
 
 from app.constants.enums import AlgorithmEnum
 from app.core.generate_video import generate_video_file, generate_video_link
@@ -8,7 +9,7 @@ router = APIRouter()
 
 
 @router.post("/download/{algorithm_id}")
-def download_video(graph: Picture, algorithm_id: str) -> None:
+def download_video(graph: Picture, algorithm_id: str) -> FileResponse:
     """Download video."""
     if algorithm_id not in AlgorithmEnum:
         raise HTTPException(status_code=404)
