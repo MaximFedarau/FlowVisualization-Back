@@ -2,13 +2,16 @@ import subprocess
 from pathlib import Path
 from uuid import uuid4
 
+import cloudinary
+import cloudinary.uploader
 from fastapi import HTTPException
 from fastapi.responses import FileResponse
 
+from app.config import settings
 from app.utils.clear_dir import clear_dir
 
 
-def generate_video():
+def generate_video_file():
     filepath = Path(__file__)
     root_dir = Path(Path(filepath.parent / "../..").resolve())
 
@@ -44,3 +47,30 @@ def generate_video():
         media_type="video/mp4",
         filename=f"{new_id}.mp4",
     )
+
+
+def generate_video_link():
+    video = generate_video_file()
+    cloudinary.config(
+        cloud_name=settings.CLOUDINARY_CLOUD_NAME,
+        api_key=settings.CLOUDINARY_API_KEY,
+        api_secret=settings.CLOUDINARY_API_SECRET,
+    )
+    res = {"url": ""}
+    try:
+        res = cloudinary.uploader.upload_large(
+            video.path,
+            resource_type="video",
+            public_id=f"FlowVisualization/{Path(video.filename).stem}",
+        )
+    except Exception as e:  # noqa: BLE001
+        raise HTTPException(
+            status_code=404,
+            detail=f"Video uploading failed: {e!s}",
+        ) from None
+    finally:
+        video_dir = Path(video.path).parent
+        if video_dir.exists():
+            clear_dir(video_dir)
+
+    return {"url": res["url"]}
