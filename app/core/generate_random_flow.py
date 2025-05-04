@@ -21,17 +21,6 @@ def filter_multiple_edges(edges: list[Edge]) -> list[Edge]:
     return clear_edges
 
 
-def filter_reversed_edges(edges: list[Edge]) -> list[Edge]:
-    """Filter reversed edges."""
-    used = set()
-    clear_edges = []
-    for edge in edges:
-        if ((edge.from_, edge.to) not in used) and (edge.from_, edge.to):
-            used.add((edge.from_, edge.to))
-            clear_edges.append(edge)
-    return clear_edges
-
-
 def get_point_on_circle(
     centre_x: float,
     centre_y: float,
@@ -55,6 +44,7 @@ def add_edge(u: int, v: int, edges: list[Edge]) -> None:
         from_=u,
         to=v,
         capacity=random.randint(min_cap, max_cap),  # noqa: S311
+        flow=0,
         color=(r, g, b),
     )
     edges.append(edge)
@@ -71,7 +61,6 @@ def generate_random_flow(n: int, m: int) -> Picture:
 
     edges = filter_loops(edges)
     edges = filter_multiple_edges(edges)
-    edges = filter_reversed_edges(edges)
 
     graph = Graph(n=n, m=len(edges), edges=edges)
     centre_x = 0

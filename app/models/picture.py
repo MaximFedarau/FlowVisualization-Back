@@ -4,7 +4,7 @@ from app.models.graph import Graph
 
 
 class Picture(BaseModel):
-    """Picture class."""
+    """Picture model."""
 
     graph: Graph
     coordinates: list[tuple[float, float]]

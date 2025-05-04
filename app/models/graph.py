@@ -2,16 +2,17 @@ from pydantic import BaseModel
 
 
 class Edge(BaseModel):
-    """Edge class."""
+    """Edge model."""
 
     from_: int
     to: int
     capacity: int
+    flow: int
     color: tuple[int, int, int]
 
 
 class Graph(BaseModel):
-    """Graph class."""
+    """Graph model."""
 
     n: int
     m: int
