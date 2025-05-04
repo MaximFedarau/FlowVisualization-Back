@@ -1,4 +1,6 @@
+import json
 import subprocess
+from collections.abc import Callable
 from pathlib import Path
 from uuid import uuid4
 
@@ -8,10 +10,16 @@ from fastapi import HTTPException
 from fastapi.responses import FileResponse
 
 from app.config import settings
+from app.models.graph import Graph
+from app.models.picture import Picture
+from app.models.visualization import Visualization
 from app.utils.clear_dir import clear_dir
 
 
-def generate_video_file() -> FileResponse:
+def generate_video_file(
+    graph: Picture,
+    method: Callable[[Graph], Visualization],
+) -> FileResponse:
     """Generate video file."""
     filepath = Path(__file__)
     root_dir = Path(Path(filepath.parent / "../..").resolve())
@@ -27,9 +35,18 @@ def generate_video_file() -> FileResponse:
     video_generator_file = new_video_dir / f"{new_id}.py"
     video_generator_file.write_bytes(template_file.read_bytes())
 
+    data_file = new_video_dir / "data.json"
+    data = graph.model_dump()
+
+    visualization = method(graph.graph)
+    data["visualization"] = visualization.model_dump()["visualization"]
+    data["edges"] = data["graph"]["edges"]
+    data_file.write_text(json.dumps(data))
+
     new_video = new_video_dir / f"{new_id}.mp4"
-    command = f'manim -ql -o "{new_video.as_posix()}" \
-    "{video_generator_file.as_posix()}" CreateCircle'
+    command = f'VISUALIZATION_DATA_PATH="{data_file.as_posix()}" manim -ql \
+    -o "{new_video.as_posix()}" \
+    "{template_file.as_posix()}" CreateFlow'
 
     try:
         subprocess.run(command, shell=True, check=False)  # noqa: S602
@@ -50,9 +67,9 @@ def generate_video_file() -> FileResponse:
     )
 
 
-def generate_video_link() -> dict:
+def generate_video_link(graph: Picture, method: Callable[[Graph], Visualization]) -> dict:
     """Upload video to cloud storage and return link."""
-    video = generate_video_file()
+    video = generate_video_file(graph, method)
     cloudinary.config(
         cloud_name=settings.CLOUDINARY_CLOUD_NAME,
         api_key=settings.CLOUDINARY_API_KEY,
