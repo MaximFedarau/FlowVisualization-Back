@@ -5,12 +5,11 @@ from typing import TYPE_CHECKING
 
 from fastapi import HTTPException
 
+from app.constants.flow_constants import max_capacity
+
 if TYPE_CHECKING:
     from app.models.graph import Edge, Graph
 from app.models.visualization import Action, Visualization
-
-max_capacity = 100
-way = []
 
 
 def find_way(
@@ -37,7 +36,12 @@ def find_way(
     return is_visited[n - 1]
 
 
-def push_way(v: int, f: float, parents: list[None | tuple[Edge, bool]]) -> int:
+def push_way(
+    v: int,
+    f: float,
+    parents: list[None | tuple[Edge, bool]],
+    way: list[Edge],
+) -> int:
     """Push way."""
     if v == 0:
         return f  # type: ignore [return-value]
@@ -49,11 +53,11 @@ def push_way(v: int, f: float, parents: list[None | tuple[Edge, bool]]) -> int:
         )
     e, b = parent
     if b:
-        d = push_way(e.from_, min(e.capacity - e.flow, f), parents)
+        d = push_way(e.from_, min(e.capacity - e.flow, f), parents, way)
         way.append(e)
         e.flow += d
         return d
-    d = push_way(e.to, min(e.flow, f), parents)
+    d = push_way(e.to, min(e.flow, f), parents, way)
     way.append(e)
     e.flow -= d
     return d
@@ -64,11 +68,11 @@ def edmonds_karp(n: int, edges: list[list[Edge]]) -> Visualization:
     is_visited = [False for _ in range(n)]
     parents: list[None | tuple[Edge, bool]] = [None for _ in range(n)]
     visualization = []
+    way: list[Edge] = []
     res = 0
-    global way  # noqa: PLW0602
     while find_way(n, is_visited, edges, parents):
         way.clear()
-        flow = push_way(n - 1, max_capacity, parents)
+        flow = push_way(n - 1, max_capacity, parents, way)
         res += flow
         visualization.append(Action(way=list(way), flow=flow))
         for i in range(n):

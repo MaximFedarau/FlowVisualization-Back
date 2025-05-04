@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from app.routers import (
     hello,
+    post_dinic_visualization,
     post_edmonds_karp_visualization,
     post_ford_fullkerson_visualization,
     post_random_flow,
@@ -21,6 +22,11 @@ app.include_router(
 app.include_router(
     post_edmonds_karp_visualization.router,
     prefix="/edmonds-karp",
+    tags=["visualization"],
+)
+app.include_router(
+    post_dinic_visualization.router,
+    prefix="/dinic",
     tags=["visualization"],
 )
 
