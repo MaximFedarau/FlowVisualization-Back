@@ -5,6 +5,7 @@ from app.routers import (
     post_dinic_visualization,
     post_edmonds_karp_visualization,
     post_ford_fullkerson_visualization,
+    post_layered_flow,
     post_random_flow,
     video_generation,
 )
@@ -12,6 +13,7 @@ from app.routers import (
 app = FastAPI(debug=True)
 
 app.include_router(post_random_flow.router, prefix="/flow", tags=["flow"])
+app.include_router(post_layered_flow.router, prefix="/flow/layered", tags=["flow"])
 app.include_router(hello.router, prefix="/api")
 app.include_router(video_generation.router, prefix="/video", tags=["video"])
 app.include_router(

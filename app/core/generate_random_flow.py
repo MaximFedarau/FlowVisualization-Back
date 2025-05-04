@@ -1,25 +1,10 @@
 import math
 import random
 
-from app.constants.flow_constants import max_capacity, min_capacity
 from app.models.graph import Edge, Graph
 from app.models.picture import Picture
-
-
-def filter_loops(edges: list[Edge]) -> list[Edge]:
-    """Filter loops."""
-    return [edge for edge in edges if edge.to != edge.from_]
-
-
-def filter_multiple_edges(edges: list[Edge]) -> list[Edge]:
-    """Filter multiple edges."""
-    used = set()
-    clear_edges = []
-    for edge in edges:
-        if (edge.from_, edge.to) not in used:
-            used.add((edge.from_, edge.to))
-            clear_edges.append(edge)
-    return clear_edges
+from app.utils.filter_edges_utils import filter_loops, filter_reversed_edges
+from app.utils.generate_edge_utils import add_edge
 
 
 def get_point_on_circle(
@@ -34,32 +19,23 @@ def get_point_on_circle(
     return (x, y)
 
 
-def add_edge(u: int, v: int, edges: list[Edge]) -> None:
-    """Add edge."""
-    r = random.randint(0, 255)  # noqa: S311
-    g = random.randint(0, 255)  # noqa: S311
-    b = random.randint(0, 255)  # noqa: S311
-    edge = Edge(
-        from_=u,
-        to=v,
-        capacity=random.randint(min_capacity, max_capacity),  # noqa: S311
-        flow=0,
-        color=(r, g, b),
-    )
-    edges.append(edge)
-
-
-def generate_random_flow(n: int, m: int) -> Picture:
+def generate_random_flow(
+    n: int,
+    density: float,
+    allow_loops: bool,  # noqa: FBT001
+    allow_reversed_edges: bool,  # noqa: FBT001
+) -> Picture:
     """Generate random flow."""
     edges: list[Edge] = []
     coordinates = []
-    for _ in range(m):
-        u = random.randint(0, n - 1)  # noqa: S311
-        v = random.randint(0, n - 1)  # noqa: S311
-        add_edge(u, v, edges)
-
-    edges = filter_loops(edges)
-    edges = filter_multiple_edges(edges)
+    for i in range(n):
+        for j in range(n):
+            if random.random() < density:  # noqa: S311
+                add_edge(i, j, edges)
+    if not allow_loops:
+        edges = filter_loops(edges)
+    if not allow_reversed_edges:
+        edges = filter_reversed_edges(edges)
 
     graph = Graph(n=n, m=len(edges), edges=edges)
     centre_x = 0
