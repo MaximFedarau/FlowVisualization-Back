@@ -1,9 +1,9 @@
 import math
 import random
 
-from app.constants.flow_constants import max_capacity, min_capacity
 from app.models.graph import Edge, Graph
 from app.models.picture import Picture
+from app.utils.generate_flow_utils import add_edge
 
 
 def filter_loops(edges: list[Edge]) -> list[Edge]:
@@ -35,29 +35,17 @@ def filter_reversed_edges(edges: list[Edge]) -> list[Edge]:
 
 
 def get_point_on_circle(
-    centre_x: float, centre_y: float, radius: float, angle: float
+    centre_x: float,
+    centre_y: float,
+    radius: float,
+    angle: float,
 ) -> tuple[float, float]:
     x = centre_x + radius * math.cos(angle)
     y = centre_y + radius * math.sin(angle)
     return (x, y)
 
 
-def add_edge(u: int, v: int, edges: list[Edge]) -> None:
-    r = random.randint(0, 255)
-    g = random.randint(0, 255)
-    b = random.randint(0, 255)
-    edge = Edge(
-        from_=u,
-        to=v,
-        capacity=random.randint(min_capacity, max_capacity),
-        flow=0,
-        color=(r, g, b),
-    )
-    edges.append(edge)
-
-
 def generate_random_flow(n: int, m: int) -> Picture:
-    print("DEBUG: generate_random_flow called with n =", n, "m =", m)
     edges = []
     coordinates = []
     for i in range(m):
