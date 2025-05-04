@@ -2,7 +2,7 @@ import random
 
 from app.models.graph import Edge, Graph
 from app.models.picture import Picture
-from app.utils.generate_flow_utils import add_edge
+from app.utils.generate_edge_utils import add_edge
 
 def get_coordinates(coordinates : list[float], layeres_counts : list[int], left_border : float, right_border : float, up_border : float, down_border : float, l : int) -> None:
     for i in range(l):

@@ -1,37 +1,10 @@
 import math
 import random
 
-from app.models.graph import Edge, Graph
+from app.models.graph import Graph
 from app.models.picture import Picture
-from app.utils.generate_flow_utils import add_edge
-
-
-def filter_loops(edges: list[Edge]) -> list[Edge]:
-    clear_edges = []
-    for edge in edges:
-        if edge.to != edge.from_:
-            clear_edges.append(edge)
-    return clear_edges
-
-
-def filter_multiple_edges(edges: list[Edge]) -> list[Edge]:
-    used = set()
-    clear_edges = []
-    for edge in edges:
-        if (edge.from_, edge.to) not in used:
-            used.add((edge.from_, edge.to))
-            clear_edges.append(edge)
-    return clear_edges
-
-
-def filter_reversed_edges(edges: list[Edge]) -> list[Edge]:
-    used = set()
-    clear_edges = []
-    for edge in edges:
-        if ((edge.from_, edge.to) not in used) and (edge.from_, edge.to):
-            used.add((edge.from_, edge.to))
-            clear_edges.append(edge)
-    return clear_edges
+from app.utils.filter_edges_utils import filter_loops, filter_reversed_edges
+from app.utils.generate_edge_utils import add_edge
 
 
 def get_point_on_circle(
@@ -45,16 +18,19 @@ def get_point_on_circle(
     return (x, y)
 
 
-def generate_random_flow(n: int, m: int) -> Picture:
+def generate_random_flow(
+    n: int, density: float, allow_loops: bool, allow_reversed_edges: bool
+) -> Picture:
     edges = []
     coordinates = []
-    for i in range(m):
-        u = random.randint(0, n - 1)
-        v = random.randint(0, n - 1)
-        add_edge(u, v, edges)
-
-    edges = filter_loops(edges)
-    edges = filter_multiple_edges(edges)
+    for i in range(n):
+        for j in range(n):
+            if random.random() < density:
+                add_edge(i, j, edges)
+    if not allow_loops:
+        edges = filter_loops(edges)
+    if not allow_reversed_edges:
+        edges = filter_reversed_edges(edges)
 
     graph = Graph(n=n, m=len(edges), edges=edges)
     centre_x = 0
