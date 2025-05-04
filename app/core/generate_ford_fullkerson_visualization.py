@@ -1,4 +1,4 @@
-from app.constants.flow_constants import max_capacity
+from app.constants.flow_constants import MAX_CAPACITY
 from app.models.graph import Edge, Graph
 from app.models.visualization import Action, Visualization
 
@@ -54,7 +54,7 @@ def ford_fulkerson(n: int, edges: list[list[Edge]]) -> Visualization:
         way.clear()
         for i in range(n):
             is_visited[i] = False
-        flow = dfs(edges, is_visited, way, n, 0, max_capacity)
+        flow = dfs(edges, is_visited, way, n, 0, MAX_CAPACITY)
         if flow == 0:
             return Visualization(visualization=visualization, flow=res)
         res += flow

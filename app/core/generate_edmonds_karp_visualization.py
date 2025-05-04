@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 from fastapi import HTTPException
 
-from app.constants.flow_constants import max_capacity
+from app.constants.flow_constants import MAX_CAPACITY
 
 if TYPE_CHECKING:
     from app.models.graph import Edge, Graph
@@ -72,7 +72,7 @@ def edmonds_karp(n: int, edges: list[list[Edge]]) -> Visualization:
     res = 0
     while find_way(n, is_visited, edges, parents):
         way.clear()
-        flow = push_way(n - 1, max_capacity, parents, way)
+        flow = push_way(n - 1, MAX_CAPACITY, parents, way)
         res += flow
         visualization.append(Action(way=list(way), flow=flow))
         for i in range(n):

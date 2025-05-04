@@ -1,3 +1,3 @@
-max_capacity = 100
-min_capacity = 1
+MAX_CAPACITY = 100
+MIN_CAPACITY = 1
 MIN_EDGES_QUANTITY = 2

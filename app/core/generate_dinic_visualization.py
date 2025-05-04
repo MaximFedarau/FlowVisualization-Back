@@ -1,6 +1,6 @@
 from collections import deque
 
-from app.constants.flow_constants import max_capacity
+from app.constants.flow_constants import MAX_CAPACITY
 from app.models.graph import Edge, Graph
 from app.models.visualization import Action, Visualization
 
@@ -11,7 +11,18 @@ def bfs(
     level: list[int],
     n: int,
 ) -> bool:
-    """Dinic's BFS."""
+    """Dinic's BFS.
+
+    Args:
+        edges (list[list[Edge]]): list of edges
+        is_visited (list[bool]): list of visited nodes
+        level (list[int]): level of the layered network
+        n (int): number of nodes
+
+    Returns:
+        bool: if path exists between start and end node
+
+    """
     queue: deque[tuple[int, int]] = deque()
     queue.append((0, 0))
     while queue:
@@ -38,7 +49,21 @@ def dfs(  # noqa: PLR0913
     v: int,
     f: int,
 ) -> int:
-    """Dinic's DFS."""
+    """Dinic's DFS.
+
+    Args:
+        way: (list[Edge]): current way
+        edges (list[list[Edge]]): list of edges
+        level (list[int]): level of the layered network
+        ptrs (list[int]): pointers to current min edge
+        n (int): number of nodes
+        v (int): current node
+        f (int): current flow
+
+    Returns:
+        int: flow
+
+    """
     if v == n - 1:
         return f
     while ptrs[v] != len(edges[v]):
@@ -70,7 +95,16 @@ def dfs(  # noqa: PLR0913
 
 
 def dinic(n: int, edges: list[list[Edge]]) -> Visualization:
-    """Dinic's algorithm."""
+    """Dinic's algorithm.
+
+    Args:
+        n (int): number of nodes.
+        edges (list[list[Edge]]): list of edges
+
+    Returns:
+        Visualization: algorithm visualization
+
+    """
     is_visited = [False for _ in range(n)]
     ptrs = [0 for _ in range(n)]
     level = [-1 for _ in range(n)]
@@ -80,7 +114,7 @@ def dinic(n: int, edges: list[list[Edge]]) -> Visualization:
     while bfs(edges, is_visited, level, n):
         while True:
             way.clear()
-            flow = dfs(way, edges, level, ptrs, n, 0, max_capacity)
+            flow = dfs(way, edges, level, ptrs, n, 0, MAX_CAPACITY)
             if flow == 0:
                 break
             res += flow
@@ -93,7 +127,15 @@ def dinic(n: int, edges: list[list[Edge]]) -> Visualization:
 
 
 def generate_visualization(graph: Graph) -> Visualization:
-    """Generate visualization."""
+    """Generate Dinic's algorithm visualization.
+
+    Args:
+        graph (Graph): given graph
+
+    Returns:
+        Visualization: algorithm visualization
+
+    """
     edges: list[list[Edge]] = [[] for _ in range(graph.n)]
     for edge in graph.edges:
         edges[edge.from_].append(edge)
