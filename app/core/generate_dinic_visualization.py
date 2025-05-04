@@ -1,6 +1,6 @@
 from collections import deque
 
-from app.constants.flow_constants import max_capacity
+from app.constants.flow_constants import MAX_CAPACITY
 from app.models.graph import Edge, Graph
 from app.models.visualization import Action, Visualization
 
@@ -80,7 +80,7 @@ def dinic(n: int, edges: list[list[Edge]]) -> Visualization:
     while bfs(edges, is_visited, level, n):
         while True:
             way.clear()
-            flow = dfs(way, edges, level, ptrs, n, 0, max_capacity)
+            flow = dfs(way, edges, level, ptrs, n, 0, MAX_CAPACITY)
             if flow == 0:
                 break
             res += flow

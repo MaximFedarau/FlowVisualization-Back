@@ -31,9 +31,3 @@ app.include_router(
     prefix="/dinic",
     tags=["visualization"],
 )
-
-
-@app.get("/")
-def read_root() -> dict:
-    """Read root."""
-    return {"Hello": "World"}
