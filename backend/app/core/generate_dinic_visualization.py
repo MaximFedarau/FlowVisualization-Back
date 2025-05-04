@@ -2,7 +2,8 @@ from app.models.graph import Graph, Edge
 from app.models.visualization import Action, Visualization
 from app.constants.flow_constants import max_capacity
 
-def Dfs(edges : list[list[Edge]], is_visited : list[int], way : list[Edge], n : int, v : int, f : int) -> int:
+way = []
+def Dfs(edges : list[list[Edge]], is_visited : list[int], n : int, v : int, f : int) -> int:
     is_visited[v] = True
     if v == n - 1:
         return f
@@ -11,7 +12,7 @@ def Dfs(edges : list[list[Edge]], is_visited : list[int], way : list[Edge], n : 
             if (is_visited[edge.to] or (edge.capacity - edge.flow == 0)):
                 continue
             way.append(edge)
-            res = Dfs(edges, is_visited, way, n, edge.to, min(f, edge.capacity - edge.flow))
+            res = Dfs(edges, is_visited, n, edge.to, min(f, edge.capacity - edge.flow))
             if (res > 0):
                 edge.flow += res
                 return res
@@ -20,7 +21,7 @@ def Dfs(edges : list[list[Edge]], is_visited : list[int], way : list[Edge], n : 
             if (is_visited[edge.from_ ] or edge.flow == 0):
                 continue
             way.append(edge)
-            res = Dfs(edges, is_visited, way, n, edge.from_ , min(f, edge.flow))
+            res = Dfs(edges, is_visited, n, edge.from_ , min(f, edge.flow))
             if (res > 0):
                 edge.flow -= res
                 return res
@@ -30,13 +31,13 @@ def Dfs(edges : list[list[Edge]], is_visited : list[int], way : list[Edge], n : 
 def FordFullkerson(n : int, edges : list[list[Edge]]) -> Visualization:
     is_visited = [False for _ in range(n)]
     visualization = []
-    way = []
     res = 0
+    global way
     while (True):
         way.clear()
         for i in range(n):
             is_visited[i] = False
-        flow = Dfs(edges, is_visited, way, n, 0, max_capacity)
+        flow = Dfs(edges, is_visited, n, 0, max_capacity)
         if (flow == 0):
             return Visualization(visualization=visualization, flow=res)
         res += flow
