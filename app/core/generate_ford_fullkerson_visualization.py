@@ -1,12 +1,16 @@
+from app.constants.flow_constants import max_capacity
 from app.models.graph import Edge, Graph
 from app.models.visualization import Action, Visualization
 
-max_capacity = 100
 
-way = []
-
-
-def dfs(edges: list[list[Edge]], is_visited: list[bool], n: int, v: int, f: int) -> int:
+def dfs(  # noqa: PLR0913
+    edges: list[list[Edge]],
+    is_visited: list[bool],
+    way: list[Edge],
+    n: int,
+    v: int,
+    f: int,
+) -> int:
     """Ford-Fulkerson DFS."""
     is_visited[v] = True
     if v == n - 1:
@@ -16,7 +20,14 @@ def dfs(edges: list[list[Edge]], is_visited: list[bool], n: int, v: int, f: int)
             if is_visited[edge.to] or (edge.capacity - edge.flow == 0):
                 continue
             way.append(edge)
-            res = dfs(edges, is_visited, n, edge.to, min(f, edge.capacity - edge.flow))
+            res = dfs(
+                edges,
+                is_visited,
+                way,
+                n,
+                edge.to,
+                min(f, edge.capacity - edge.flow),
+            )
             if res > 0:
                 edge.flow += res
                 return res
@@ -25,7 +36,7 @@ def dfs(edges: list[list[Edge]], is_visited: list[bool], n: int, v: int, f: int)
             if is_visited[edge.from_] or edge.flow == 0:
                 continue
             way.append(edge)
-            res = dfs(edges, is_visited, n, edge.from_, min(f, edge.flow))
+            res = dfs(edges, is_visited, way, n, edge.from_, min(f, edge.flow))
             if res > 0:
                 edge.flow -= res
                 return res
@@ -37,13 +48,13 @@ def ford_fulkerson(n: int, edges: list[list[Edge]]) -> Visualization:
     """Ford-Fulkerson algorithm."""
     is_visited = [False for _ in range(n)]
     visualization: list[Action] = []
+    way: list[Edge] = []
     res = 0
-    global way  # noqa: PLW0602
     while True:
         way.clear()
         for i in range(n):
             is_visited[i] = False
-        flow = dfs(edges, is_visited, n, 0, max_capacity)
+        flow = dfs(edges, is_visited, way, n, 0, max_capacity)
         if flow == 0:
             return Visualization(visualization=visualization, flow=res)
         res += flow
