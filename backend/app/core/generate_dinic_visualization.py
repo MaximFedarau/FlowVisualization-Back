@@ -1,51 +1,79 @@
 from app.models.graph import Graph, Edge
 from app.models.visualization import Action, Visualization
 from app.constants.flow_constants import max_capacity
+from collections import deque
 
-way = []
-def Dfs(edges : list[list[Edge]], is_visited : list[int], n : int, v : int, f : int) -> int:
-    is_visited[v] = True
-    if v == n - 1:
+def Bfs(edges : list[list[Edge]], is_visited : list[int], level : list[int], n : int) -> bool:
+    queue = deque()
+    queue.append((0, 0))
+    while (queue):
+        depth, v = queue.popleft()
+        if (is_visited[v]):
+            continue
+        is_visited[v] = True
+        level[v] = depth
+        for e in edges[v]:
+            if (e.from_ == v and ((e.capacity - e.flow) > 0)):
+                if not is_visited[e.to]:
+                    queue.append((depth + 1, e.to))
+            elif (e.flow > 0):
+                if not is_visited[e.from_]:
+                    queue.append((depth + 1, e.from_))
+    return (level[n - 1] != -1)
+
+def Dfs(way : list[Edge], edges : list[list[Edge]], level : list[int], ptrs : list[int], n : int, v : int, f : int) -> int:
+    if (v == n - 1):
         return f
-    for edge in edges[v]:
-        if (edge.from_ == v):
-            if (is_visited[edge.to] or (edge.capacity - edge.flow == 0)):
+    while (ptrs[v] != len(edges[v])):
+        e = edges[v][ptrs[v]]
+        if (e.from_ == v):
+            if ((e.capacity == e.flow) or (level[e.to] <= level[e.from_])):
+                ptrs[v] += 1
                 continue
-            way.append(edge)
-            res = Dfs(edges, is_visited, n, edge.to, min(f, edge.capacity - edge.flow))
-            if (res > 0):
-                edge.flow += res
-                return res
-            way.pop()
-        else:
-            if (is_visited[edge.from_ ] or edge.flow == 0):
+            way.append(e)
+            d = Dfs(way, edges, level, ptrs, n, e.to, min(f, e.capacity - e.flow))
+            if (d == 0):
+                ptrs[v] += 1
+                way.pop()
                 continue
-            way.append(edge)
-            res = Dfs(edges, is_visited, n, edge.from_ , min(f, edge.flow))
-            if (res > 0):
-                edge.flow -= res
-                return res
+            e.flow += d
+            return d
+        if ((e.flow == 0) or (level[e.from_] <= level[e.to])):
+            ptrs[v] += 1
+            continue
+        way.append(e)
+        d = Dfs(way, edges, level, ptrs, n, e.from_, min(f, e.flow))
+        if (d == 0):
+            ptrs[v] += 1
             way.pop()
+            continue
+        e.flow -= d
+        return d
     return 0
 
-def FordFullkerson(n : int, edges : list[list[Edge]]) -> Visualization:
+def Dinic(n : int, edges : list[list[Edge]]) -> Visualization:
     is_visited = [False for _ in range(n)]
+    ptrs = [0 for _ in range(n)]
+    level = [-1 for _ in range(n)]
     visualization = []
+    way = []
     res = 0
-    global way
-    while (True):
-        way.clear()
+    while (Bfs(edges, is_visited, level, n)):
+        while(True):
+            way.clear()
+            flow = Dfs(way, edges, level, ptrs, n, 0, max_capacity)
+            if flow == 0:
+                break
+            res += flow
+            visualization.append(Action(way=list(way), flow=flow))
         for i in range(n):
             is_visited[i] = False
-        flow = Dfs(edges, is_visited, n, 0, max_capacity)
-        if (flow == 0):
-            return Visualization(visualization=visualization, flow=res)
-        res += flow
-        visualization.append(Action(way=list(way), flow=flow))
-
+            level[i] = -1
+            ptrs[i] = 0
+    return Visualization(visualization=visualization, flow=res)
 def generate_visualization(graph : Graph) -> Visualization:
     edges = [[] for _ in range(graph.n)]
     for edge in graph.edges:
         edges[edge.from_].append(edge)
         edges[edge.to].append(edge)
-    return FordFullkerson(graph.n, edges)
+    return Dinic(graph.n, edges)
