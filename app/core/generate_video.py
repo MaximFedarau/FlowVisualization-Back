@@ -9,12 +9,11 @@ from fastapi import HTTPException
 from fastapi.responses import FileResponse
 
 from app.config import settings
-from app.core.generate_edmonds_karp_visualization import generate_visualization
 from app.models.picture import Picture
 from app.utils.clear_dir import clear_dir
 
 
-def generate_video_file(graph: Picture) -> FileResponse:
+def generate_video_file(graph: Picture, method) -> FileResponse:
     """Generate video file."""
     filepath = Path(__file__)
     root_dir = Path(Path(filepath.parent / "../..").resolve())
@@ -33,7 +32,7 @@ def generate_video_file(graph: Picture) -> FileResponse:
     data_file = new_video_dir / "data.json"
     data = graph.model_dump()
 
-    visualization = generate_visualization(graph.graph)
+    visualization = method(graph.graph)
     data["visualization"] = visualization.model_dump()["visualization"]
     data["edges"] = data["graph"]["edges"]
     data_file.write_text(json.dumps(data))
@@ -61,9 +60,9 @@ def generate_video_file(graph: Picture) -> FileResponse:
     )
 
 
-def generate_video_link(graph: Picture) -> dict:
+def generate_video_link(graph: Picture, method) -> dict:
     """Upload video to cloud storage and return link."""
-    video = generate_video_file(graph)
+    video = generate_video_file(graph, method)
     cloudinary.config(
         cloud_name=settings.CLOUDINARY_CLOUD_NAME,
         api_key=settings.CLOUDINARY_API_KEY,
