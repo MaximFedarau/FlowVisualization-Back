@@ -1,22 +1,16 @@
 from app.models.graph import Edge, Graph
 from app.models.visualization import Action, Visualization
 
-max_capacity = 1e5
+max_capacity = 100
 
 way = []
 
 
-def dfs(
-    edges: list[list[Edge]],
-    is_visited: list[bool],
-    n: int,
-    v: int,
-    f: float,
-) -> int:
-    """Ford Fulkerson Dfs."""
+def dfs(edges: list[list[Edge]], is_visited: list[bool], n: int, v: int, f: int) -> int:
+    """Ford-Fulkerson DFS."""
     is_visited[v] = True
     if v == n - 1:
-        return f  # type: ignore[return-value]
+        return f
     for edge in edges[v]:
         if edge.from_ == v:
             if is_visited[edge.to] or (edge.capacity - edge.flow == 0):
@@ -44,8 +38,8 @@ def ford_fulkerson(n: int, edges: list[list[Edge]]) -> Visualization:
     is_visited = [False for _ in range(n)]
     visualization: list[Action] = []
     res = 0
+    global way  # noqa: PLW0602
     while True:
-        global way  # noqa: PLW0602
         way.clear()
         for i in range(n):
             is_visited[i] = False
@@ -56,8 +50,8 @@ def ford_fulkerson(n: int, edges: list[list[Edge]]) -> Visualization:
         visualization.append(Action(way=list(way), flow=flow))
 
 
-def generate_flow_visualization(graph: Graph) -> Visualization:
-    """Generate flow visualization."""
+def generate_visualization(graph: Graph) -> Visualization:
+    """Generate visualization."""
     edges: list[list[Edge]] = [[] for _ in range(graph.n)]
     for edge in graph.edges:
         edges[edge.from_].append(edge)
