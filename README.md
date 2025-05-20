@@ -33,7 +33,7 @@ Here's an example of the Ford-Fulkerson algorithm visualization (the dotted line
 1) [Install manim.](https://docs.manim.community/en/stable/installation.html)
 2) Install dependencies: `pip install -r requirements.txt`.
 3) Add [Cloudinary](https://cloudinary.com/) environment variables to `.env` file. Required variables are specified in `app/config.py` file. Their values you can find on your dashboard in your personal Cloudinary account.
-4) Run in development mode with `fastapi dev app/main.py` or in production mode with `fastapi run app/main.py`.
+4) Run in development mode with `fastapi dev main.py` or in production mode with `fastapi run main.py`.
 5) Run tests with `./scripts/test.sh`.
 6) Run lint with `./scripts/lint.sh`.
 7) Run formatting with `./scripts/format.sh`.

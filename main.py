@@ -10,10 +10,12 @@ from app.routers import (
     video_generation,
 )
 
-app = FastAPI(debug=True)
+app = FastAPI()
+
 
 app.include_router(post_random_flow.router, prefix="/flow", tags=["flow"])
-app.include_router(post_layered_flow.router, prefix="/flow/layered", tags=["flow"])
+app.include_router(post_layered_flow.router,
+                   prefix="/flow/layered", tags=["flow"])
 app.include_router(hello.router, prefix="/api")
 app.include_router(video_generation.router, prefix="/video", tags=["video"])
 app.include_router(
