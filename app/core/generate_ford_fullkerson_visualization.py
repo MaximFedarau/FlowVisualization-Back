@@ -1,0 +1,70 @@
+from app.constants.flow_constants import MAX_CAPACITY
+from app.models.graph import Edge, Graph
+from app.models.visualization import Action, Visualization
+
+
+def dfs(  # noqa: PLR0913
+    edges: list[list[Edge]],
+    is_visited: list[bool],
+    way: list[Edge],
+    n: int,
+    v: int,
+    f: int,
+) -> int:
+    """Ford-Fulkerson DFS."""
+    is_visited[v] = True
+    if v == n - 1:
+        return f
+    for edge in edges[v]:
+        if edge.from_ == v:
+            if is_visited[edge.to] or (edge.capacity - edge.flow == 0):
+                continue
+            way.append(edge)
+            res = dfs(
+                edges,
+                is_visited,
+                way,
+                n,
+                edge.to,
+                min(f, edge.capacity - edge.flow),
+            )
+            if res > 0:
+                edge.flow += res
+                return res
+            way.pop()
+        else:
+            if is_visited[edge.from_] or edge.flow == 0:
+                continue
+            way.append(edge)
+            res = dfs(edges, is_visited, way, n, edge.from_, min(f, edge.flow))
+            if res > 0:
+                edge.flow -= res
+                return res
+            way.pop()
+    return 0
+
+
+def ford_fulkerson(n: int, edges: list[list[Edge]]) -> Visualization:
+    """Ford-Fulkerson algorithm."""
+    is_visited = [False for _ in range(n)]
+    visualization: list[Action] = []
+    way: list[Edge] = []
+    res = 0
+    while True:
+        way.clear()
+        for i in range(n):
+            is_visited[i] = False
+        flow = dfs(edges, is_visited, way, n, 0, MAX_CAPACITY)
+        if flow == 0:
+            return Visualization(visualization=visualization, flow=res)
+        res += flow
+        visualization.append(Action(way=list(way), flow=flow))
+
+
+def generate_visualization(graph: Graph) -> Visualization:
+    """Generate visualization."""
+    edges: list[list[Edge]] = [[] for _ in range(graph.n)]
+    for edge in graph.edges:
+        edges[edge.from_].append(edge)
+        edges[edge.to].append(edge)
+    return ford_fulkerson(graph.n, edges)
